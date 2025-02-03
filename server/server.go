@@ -3,8 +3,8 @@ package server
 import (
 	"bufio"
 	"fmt"
-	"github.com/tanvoid0/dev-bot/bot"
-	"github.com/tanvoid0/dev-bot/util"
+	"github.com/tanvoid0/go-bot/bot"
+	"github.com/tanvoid0/go-bot/util"
 	"io"
 	"log"
 	"net/http"

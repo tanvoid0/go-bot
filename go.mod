@@ -1,4 +1,4 @@
-module github.com/tanvoid0/dev-bot
+module github.com/tanvoid0/go-bot
 
 go 1.23.1
 

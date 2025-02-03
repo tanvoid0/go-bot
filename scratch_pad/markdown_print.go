@@ -3,7 +3,7 @@ package scratch_pad
 import (
 	"fmt"
 	"github.com/charmbracelet/glamour"
-	"github.com/tanvoid0/dev-bot/util"
+	"github.com/tanvoid0/go-bot/util"
 	"log"
 )
 

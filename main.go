@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/joho/godotenv"
-	"github.com/tanvoid0/dev-bot/data"
-	"github.com/tanvoid0/dev-bot/server"
+	"github.com/tanvoid0/go-bot/data"
+	"github.com/tanvoid0/go-bot/server"
 )
 
 func main() {

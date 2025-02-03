@@ -2,7 +2,7 @@ package data
 
 import (
 	"fmt"
-	"github.com/tanvoid0/dev-bot/util"
+	"github.com/tanvoid0/go-bot/util"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"

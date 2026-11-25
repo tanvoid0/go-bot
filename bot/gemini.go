@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/generative-ai-go/genai"
-	"github.com/tanvoid0/go-bot/data"
-	"github.com/tanvoid0/go-bot/util"
+	"github.com/tanvoid0/go_bot/data"
+	"github.com/tanvoid0/go_bot/util"
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 	"io"
@@ -15,7 +15,7 @@ import (
 )
 
 type GeminiBot struct {
-	properties BotProperties
+	properties Properties
 	ctx        context.Context
 	client     genai.Client
 	model      genai.GenerativeModel
@@ -24,7 +24,7 @@ type GeminiBot struct {
 func NewGeminiBot() *GeminiBot {
 	properties := GetBotProperties()
 	properties.apiKey = util.ReadEnv("GEMINI_API_KEY")
-	properties.model = "gemini-1.5-flash"
+	properties.Model = "gemini-1.5-flash"
 
 	ctx := context.Background()
 	client, err := genai.NewClient(ctx, option.WithAPIKey(properties.apiKey))
@@ -32,11 +32,11 @@ func NewGeminiBot() *GeminiBot {
 		log.Fatalln("Error creating Generative Language API client:", err)
 		return nil
 	}
-	model := client.GenerativeModel(properties.model)
+	model := client.GenerativeModel(properties.Model)
 
 	return &GeminiBot{
 		properties: *properties,
-		ctx:        context.Background(),
+		ctx:        ctx,
 		client:     *client,
 		model:      *model,
 	}
@@ -45,9 +45,8 @@ func NewGeminiBot() *GeminiBot {
 func (bot GeminiBot) StreamResponse(prompt string) (io.Reader, error) {
 
 	user := data.User{
-		Name:     "Tanveer",
-		Username: "tanvoid0",
-		Password: "password",
+		Name:     util.ReadEnv("USERNAME"),
+		Username: "user",
 	}
 	message := data.ChatMessage{
 		Data:   prompt,

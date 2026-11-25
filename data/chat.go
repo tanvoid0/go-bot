@@ -2,6 +2,7 @@ package data
 
 import (
 	"fmt"
+	"gorm.io/gorm"
 	"log"
 )
 
@@ -34,7 +35,38 @@ type ChatRoom struct {
 	Messages []ChatMessage `gorm:"foreignKey:ChatRoomID"` // Define the foreign key
 }
 
-func (message ChatMessage) Create() (*ChatMessage, error) {
+func (chatRoom *ChatRoom) Create() (*ChatRoom, error) {
+	db, err := ConnectDatabase()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	newChatRoom := db.Create(&chatRoom)
+	if newChatRoom.Error != nil {
+		log.Fatal(newChatRoom.Error)
+	} else {
+		fmt.Printf("New chat room created: %+v\n", chatRoom)
+	}
+	return chatRoom, nil
+}
+
+func FindChatRoomById(id int) (*ChatRoom, error) {
+	db, err := ConnectDatabase()
+	if err != nil {
+		log.Fatal(err)
+	}
+	var chatRoom ChatRoom
+	result := db.First(&chatRoom, id)
+	if result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
+			return nil, fmt.Errorf("Chat room with id %d not found", id)
+		}
+		return nil, fmt.Errorf("failed to find chat room: %v", result.Error)
+	}
+	return &chatRoom, nil
+}
+
+func (message *ChatMessage) Create() (*ChatMessage, error) {
 	db, err := ConnectDatabase()
 	if err != nil {
 		log.Fatal(err)
@@ -46,6 +78,6 @@ func (message ChatMessage) Create() (*ChatMessage, error) {
 	} else {
 		fmt.Printf("Record created: %+v\n", newMessage)
 	}
-	return &message, nil
+	return message, nil
 
 }

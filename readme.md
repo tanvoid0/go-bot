@@ -16,10 +16,10 @@
 ## Installation
 ```bash
 # Clone the repository
-git clone https://github.com/tanvoid0/go-bot
+git clone https://github.com/tanvoid0/go_bot
 
 # Navigate to the project folder
-cd go-bot
+cd go_bot
 
 # Install dependencies
 go mod tidy

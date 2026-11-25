@@ -3,8 +3,8 @@ package server
 import (
 	"bufio"
 	"fmt"
-	"github.com/tanvoid0/go-bot/bot"
-	"github.com/tanvoid0/go-bot/util"
+	"github.com/tanvoid0/go_bot/bot"
+	"github.com/tanvoid0/go_bot/util"
 	"io"
 	"log"
 	"net/http"
@@ -41,20 +41,8 @@ func streamRequestHandler(stream io.Reader, err error) http.HandlerFunc {
 	}
 }
 
-func botStreamHandler(r *http.Request) (io.Reader, error) {
-	// Read the prompt from the request body
-	prompt := r.FormValue("prompt")
-	if prompt == "" {
-		return nil, fmt.Errorf("missing prompt in request body")
-	}
-
-	// Assuming NewGeminiBot() and StreamResponse() are already implemented
-	geminiBot := bot.NewGeminiBot()
-	return geminiBot.StreamResponse(prompt)
-}
-
 func handlerFunction(w http.ResponseWriter, r *http.Request) {
-	stream, err := botStreamHandler(r)
+	stream, err := BotStreamHandler(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -64,10 +52,10 @@ func handlerFunction(w http.ResponseWriter, r *http.Request) {
 }
 
 func Run() {
-	// Usage:  curl -X POST -d "prompt=Tell me a story in 1000 words" http://localhost:8000/api/bot/query
-	http.HandleFunc("/api/bot/query", handlerFunction) // Use http.HandleFunc here
-	port := util.ReadEnv("PORT")
+	http.HandleFunc("/api/bot/query", handlerFunction)
+	http.HandleFunc("/api/bot/models", bot.ModelsHandler)
 
+	port := util.ReadEnv("PORT")
 	fmt.Println("Server started at http://localhost:" + port)
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatal("Server error:", err)

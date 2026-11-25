@@ -2,7 +2,7 @@ package data
 
 import (
 	"fmt"
-	"github.com/tanvoid0/go-bot/util"
+	"github.com/tanvoid0/go_bot/util"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
@@ -25,7 +25,10 @@ func ConnectDatabase() (*gorm.DB, error) {
 		if err != nil {
 			return nil, fmt.Errorf("error creating database file: %w", err)
 		}
-		file.Close()
+		err = file.Close()
+		if err != nil {
+			return nil, err
+		}
 		fmt.Println("Database file created: ", dbPath)
 	} else if err != nil {
 		return nil, fmt.Errorf("error opening database file: %w", err)

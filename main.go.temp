@@ -1,0 +1,165 @@
+package main
+
+//
+//import (
+//	"bytes"
+//	"encoding/json"
+//	"fmt"
+//	"io"
+//	"net/http"
+//	"os"
+//	"time"
+//)
+//
+//type Request struct {
+//	Model    string    `json:"model"`
+//	Messages []Message `json:"messages"`
+//	Stream   bool      `json:"stream"`
+//}
+//
+//type Message struct {
+//	Role    string `json:"role"`
+//	Content string `json:"content"`
+//}
+//
+//type Response struct {
+//	Model              string    `json:"model"`
+//	CreatedAt          time.Time `json:"created_at"`
+//	Message            Message   `json:"message"`
+//	Done               bool      `json:"done"`
+//	TotalDuration      int64     `json:"total_duration"`
+//	LoadDuration       int       `json:"load_duration"`
+//	PromptEvalCount    int       `json:"prompt_eval_count"`
+//	PromptEvalDuration int       `json:"prompt_eval_duration"`
+//	EvalCount          int       `json:"eval_count"`
+//	EvalDuration       int64     `json:"eval_duration"`
+//}
+//
+//const defaultOllamaURL = "http://localhost:11434/api/chat"
+//
+//// OllamaClient to hold the client instance and reuse it for multiple queries
+//type OllamaClient struct {
+//	client *http.Client
+//	url    string
+//}
+//
+//// NewOllamaClient initializes and returns a reusable OllamaClient
+//func NewOllamaClient(url string) *OllamaClient {
+//	return &OllamaClient{
+//		client: &http.Client{},
+//		url:    url,
+//	}
+//}
+//
+//// Query sends a query to the Ollama API and processes the stream response
+//func (o *OllamaClient) Query(query string) error {
+//	msg := Message{
+//		Role:    "user",
+//		Content: query,
+//	}
+//	req := Request{
+//		Model:    "deepseek-r1:1.5b",
+//		Stream:   true, // Enable streaming
+//		Messages: []Message{msg},
+//	}
+//
+//	js, err := json.Marshal(&req)
+//	if err != nil {
+//		return err
+//	}
+//
+//	httpReq, err := http.NewRequest(http.MethodPost, o.url, bytes.NewReader(js))
+//	if err != nil {
+//		return err
+//	}
+//
+//	httpResp, err := o.client.Do(httpReq)
+//	if err != nil {
+//		return err
+//	}
+//	defer httpResp.Body.Close()
+//
+//	// Process the stream from the response body
+//	decoder := json.NewDecoder(httpResp.Body)
+//	for {
+//		var ollamaResp Response
+//		if err := decoder.Decode(&ollamaResp); err == io.EOF {
+//			// End of stream
+//			break
+//		} else if err != nil {
+//			return fmt.Errorf("error reading stream: %v", err)
+//		}
+//
+//		// Print the message as it arrives
+//		if ollamaResp.Message.Content != "" {
+//			fmt.Print(ollamaResp.Message.Content)
+//		}
+//		if ollamaResp.Done {
+//			break
+//		}
+//	}
+//	return nil
+//}
+//
+//func main() {
+//
+//	err := godotenv.Load()
+//	if err != nil {
+//		fmt.Println("Error loading .env file")
+//	}
+//	//_, err = data.SetupDatabase()
+//	//if err != nil {
+//	//	fmt.Println("Error connecting to database")
+//	//}
+//	// Initialize OllamaClient once
+//	client := bot.NewOllamaClient()
+//
+//	// Multiple queries
+//	//queries := []string{
+//	//	"Why is the sky blue?",
+//	//	"What is 1+1",
+//	//	//"What is the meaning of life?",
+//	//}
+//	client.RunBot()
+//
+//	//for _, query := range queries {
+//	//	fmt.Printf("\nQuery: %s\n", query)
+//	//	client.RunBot()
+//	//	//stream, err := client.AskStream(query)
+//	//	//if err != nil {
+//	//	//	fmt.Println("Error:", err)
+//	//	//	os.Exit(1)
+//	//	//}
+//	//	//defer stream.Close()
+//	//	//
+//	//	//scanner := bufio.NewScanner(stream)
+//	//	//for scanner.Scan() {
+//	//	//	fmt.Println(scanner.Text()) // Print each line as it comes
+//	//	//}
+//	//	//
+//	//	//if err := scanner.Err(); err != nil {
+//	//	//	fmt.Println("Error reading stream:", err)
+//	//	//}
+//	//}
+//}
+
+//
+//import (
+//	"fmt"
+//	"github.com/joho/godotenv"
+//	"github.com/tanvoid0/go_bot/data"
+//	"github.com/tanvoid0/go_bot/server"
+//)
+//
+//func main() {
+//	err := godotenv.Load()
+//	if err != nil {
+//		fmt.Println("Error loading .env file")
+//	}
+//	_, err = data.SetupDatabase()
+//	if err != nil {
+//		fmt.Println("Error connecting to database")
+//	}
+//	server.Run()
+//
+//}

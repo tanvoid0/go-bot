@@ -3,53 +3,89 @@ package bot
 import (
 	"bufio"
 	"fmt"
-	"github.com/tanvoid0/go-bot/util"
+	"github.com/tanvoid0/go_bot/util"
 	"io"
 	"log"
-	"net/http"
+	"strings"
+	"time"
 )
 
-// RunBotCli processes the bot CLI arguments and executes the corresponding commands
-func RunBotCli(args []string) {
-	if args[0] != "bot" {
-		fmt.Println("Usage: dev_pilot bot [model] [command] [options]")
-		return
-	}
+type Client interface {
+	GetProperties() *Properties
+	Ask(query string) (string, error)
+	AskStream(query string) (io.ReadCloser, error)
 }
 
-// BotModel defines the interface for AI tools
-type BotModel interface {
-	SetProperties(properties BotProperties)
-	Respond(prompt string) (string, error)
-	StreamRespond(prompt string) (io.ReadCloser, error)
+// GetHistory returns the chat history from the bot
+func GetHistory(b Client) []Message {
+	return b.GetProperties().History
 }
 
-// BotProperties holds configuration parameters for the bot
-type BotProperties struct {
+// AddToChatHistory adds a message to the bot's chat history
+func AddToChatHistory(b Client, msg Message) {
+	props := b.GetProperties()
+	props.History = append(props.History, msg)
+}
+
+type Request struct {
+	Model    string    `json:"Model"`
+	Messages []Message `json:"messages"`
+	Stream   bool      `json:"stream"`
+}
+
+// Response struct represents the response from the chat Model
+type Response struct {
+	Model   string  `json:"Model"`
+	Message Message `json:"message"`
+	Done    bool    `json:"done"`
+}
+
+type Message struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
+}
+
+// Properties holds configuration parameters for the bot
+type Properties struct {
+	client      string
 	apiKey      string
-	model       string
+	Model       string
 	temperature float32
 	tone        string
 	instruction string
+	user        string
+	bot         string
+	History     []Message
 }
 
-func GetBotProperties() *BotProperties {
-	return &BotProperties{
+func GetBotProperties() *Properties {
+	return &Properties{
 		temperature: 1,
 		tone:        "",
 		instruction: "A personal help bot",
+		client:      util.ReadEnv("CLIENT"),
+		user:        util.ReadEnv("USER"),
+		bot:         util.ReadEnv("BOT"),
+		Model:       util.ReadEnv("MODEL"),
 	}
 }
 
-func RunBot() {
+func TrimResponse(data string) string {
+	return strings.Join(strings.Fields(data), " ")
+}
+
+func RunBot(c Client) {
 	for {
 		prompt := util.Read("Enter your message: ")
 		if prompt == "exit" {
 			break
 		}
-		geminiBot := NewGeminiBot()
+		//geminiBot := NewGeminiBot()
 
-		stream, err := geminiBot.StreamResponse(prompt)
+		start := time.Now()
+		fmt.Println("Started queries")
+
+		stream, err := c.AskStream(prompt)
 		if err != nil {
 			fmt.Println(err)
 			continue
@@ -58,48 +94,42 @@ func RunBot() {
 		//var response string // Accumulate the streamed text
 
 		for scanner.Scan() {
-			fmt.Println(scanner.Text())
+			fmt.Printf("%s ", scanner.Text())
 		}
 		if err := scanner.Err(); err != nil {
 			log.Fatal(err)
 		}
+		fmt.Printf("\nCompleted in %v\n\n", time.Since(start))
 
 		//fmt.Println(util.MarkdownFormat(response))
 	}
 }
 
-func BotHttpStreamRequest(w http.ResponseWriter, r *http.Request) {
-	prompt := r.FormValue("prompt")
-	if prompt == "" {
-		http.Error(w, "Missing prompt in request body", http.StatusBadRequest)
-		return
+func GetClient() Client {
+	var client Client = nil
+	// Check the CLIENT environment variable
+	if util.ReadEnv("CLIENT") == "ollama" {
+		client = NewOllamaClient() // Return OllamaClient
+	} else {
+		// Handle the case where CLIENT is not recognized, for example, logging and returning an error
+		log.Fatal("Invalid client type specified in environment variable 'CLIENT'")
 	}
 
-	geminiBot := NewGeminiBot()
-	stream, err := geminiBot.StreamResponse(prompt)
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+	// Safely retrieve properties from the client
+	if client == nil {
+		log.Fatal("Client is nil. Exiting.")
 	}
 
-	w.Header().Set("Content-Type", "text/event-stream")
-	w.Header().Set("Cache-Control", "no-cache")
-	w.Header().Set("Connection", "keep-alive")
+	properties := client.GetProperties()
+	log.Printf("Running Bot: %s, Model: %s\n", properties.bot, properties.client)
 
-	scanner := bufio.NewScanner(stream)
-
-	for scanner.Scan() {
-		_, err := fmt.Fprintf(w, "%s\n", scanner.Text())
-		if err != nil {
-			http.Error(w, "Failed to send event", http.StatusInternalServerError)
-			return
-		}
-
-		w.(http.Flusher).Flush()
-	}
-
-	if err := scanner.Err(); err != nil {
-		http.Error(w, "Error reading stream", http.StatusInternalServerError)
-	}
+	return client
 }
+
+//// RunBotCli processes the bot CLI arguments and executes the corresponding commands
+//func RunBotCli(args []string) {
+//	if args[0] != "bot" {
+//		fmt.Println("Usage: dev_pilot bot [Model] [command] [options]")
+//		return
+//	}
+//}

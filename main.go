@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/joho/godotenv"
-	"github.com/tanvoid0/go-bot/data"
-	"github.com/tanvoid0/go-bot/server"
+	"github.com/tanvoid0/go_bot/data"
+	"github.com/tanvoid0/go_bot/server"
 )
 
 func main() {
@@ -17,5 +17,6 @@ func main() {
 		fmt.Println("Error connecting to database")
 	}
 	server.Run()
-
+	//client := bot.GetClient()
+	//bot.RunBot(client)
 }
